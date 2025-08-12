@@ -1,6 +1,7 @@
 package com.deloitte.absolute_cinema.controller;
 
 import com.deloitte.absolute_cinema.dto.MovieDTO;
+import com.deloitte.absolute_cinema.dto.PopularMovieDTO;
 import com.deloitte.absolute_cinema.service.MovieService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
@@ -90,5 +91,11 @@ public class MovieController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/popular-this-week")
+    public ResponseEntity<List<PopularMovieDTO>> getPopularMoviesThisWeek() {
+        List<PopularMovieDTO> popularMovies = movieService.getPopularMoviesThisWeek();
+        return ResponseEntity.ok(popularMovies);
     }
 }

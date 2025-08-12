@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getAllMovies } from "@/lib/api";
 import MovieCard from "@/components/MovieCard";
+import PopularMoviesSection from "@/components/PopularMoviesSection";
 import { Movie } from "@/types/movie";
 
 export default function MoviesPage() {
@@ -351,6 +352,9 @@ export default function MoviesPage() {
           </div>
         </div>
       </div>
+
+      {/* Popular Movies Section - Below search bar, above movie grid */}
+      <PopularMoviesSection />
 
       {/* Movies grid */}
       {filteredMovies.length > 0 ? (

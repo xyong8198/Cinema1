@@ -1,8 +1,10 @@
 package com.deloitte.absolute_cinema.service;
 
 import com.deloitte.absolute_cinema.dto.MovieDTO;
+import com.deloitte.absolute_cinema.dto.PopularMovieDTO;
 import com.deloitte.absolute_cinema.entity.Movie;
 import com.deloitte.absolute_cinema.exception.ResourceNotFoundException;
+import com.deloitte.absolute_cinema.repository.BookingRepository;
 import com.deloitte.absolute_cinema.repository.MovieRepository;
 import com.deloitte.absolute_cinema.repository.MovieReviewRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 public class MovieService {
     
     private final MovieRepository movieRepository;
+    private final BookingRepository bookingRepository;
 
     @Autowired
     private MovieReviewRepository reviewRepository;
@@ -43,8 +47,9 @@ public class MovieService {
 
     private static final String REVIEW_API_URL = "https://www.omdbapi.com/?t=%s&apikey=ebddc771";
 
-    public MovieService(MovieRepository movieRepository) {
+    public MovieService(MovieRepository movieRepository, BookingRepository bookingRepository) {
         this.movieRepository = movieRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     // Convert Entity to DTO
@@ -205,6 +210,15 @@ public class MovieService {
         }
 
         return new HashMap<>();
+    }
+
+    public List<PopularMovieDTO> getPopularMoviesThisWeek() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfWeek = now.with(DayOfWeek.MONDAY).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfWeek = startOfWeek.plusWeeks(1);
+        
+        List<PopularMovieDTO> popularMovies = bookingRepository.findPopularMoviesThisWeek(startOfWeek, endOfWeek);
+        return popularMovies.stream().limit(3).collect(Collectors.toList());
     }
 
 }
