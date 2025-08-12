@@ -23,15 +23,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
-        <Script id="dark-mode-script" strategy="beforeInteractive">
-          {`
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-              document.documentElement.classList.add('dark')
-            } else {
-              document.documentElement.classList.remove('dark')
-            }
-          `}
-        </Script>
       </head>
       <body
         className={`${inter.className} antialiased h-full bg-white dark:bg-gray-900 dark:text-white transition-colors duration-300`}

@@ -36,14 +36,22 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme;
+    let initialTheme: Theme;
     
     if (savedTheme) {
-      setThemeState(savedTheme);
+      initialTheme = savedTheme;
     } else {
       const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setThemeState(systemPrefersDark ? "dark" : "light");
+      initialTheme = systemPrefersDark ? "dark" : "light";
     }
     
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    
+    setThemeState(initialTheme);
     setIsInitialized(true);
   }, []);
 
