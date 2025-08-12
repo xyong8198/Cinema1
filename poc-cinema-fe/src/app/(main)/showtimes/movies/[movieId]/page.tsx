@@ -7,6 +7,7 @@ import { format, parseISO } from "date-fns";
 import { Showtime, Movie } from "@/types/movie";
 import { getMovieById, getShowtimesByMovie } from "@/lib/api";
 import { useSearchParams, useRouter } from "next/navigation";
+import MoviePoster from "@/components/MoviePoster";
 
 export default function ShowtimesByMoviePage({
   params,
@@ -186,8 +187,8 @@ export default function ShowtimesByMoviePage({
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
           {/* Movie Poster */}
           <div className="relative w-40 h-60 rounded overflow-hidden shadow-lg dark:shadow-black/30 shrink-0">
-            <Image
-              src={movie.posterUrl || "/placeholder-poster.jpg"}
+            <MoviePoster
+              src={movie.posterUrl}
               alt={movie.title}
               fill
               style={{ objectFit: "cover" }}

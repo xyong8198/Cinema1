@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getMovieById, getMovieDetailsById } from "@/lib/api";
 import { DetailedMovie, Movie } from "@/types/movie";
 import { formatPrice } from "@/utils/price";
+import MoviePoster from "@/components/MoviePoster";
 
 export default function MovieDetailsPage({
   params,
@@ -130,16 +131,11 @@ export default function MovieDetailsPage({
         <div className="w-full lg:w-1/3">
           <div className="sticky top-24">
             <div className="relative w-full h-[450px] lg:h-auto aspect-[2/3] rounded-3xl overflow-hidden shadow-xl dark:shadow-pink-900/20 transform transition-all duration-500 hover:shadow-2xl dark:hover:shadow-pink-900/30">
-              <Image
-                src={
-                  movie.posterUrl ||
-                  movieDetails?.Poster ||
-                  "/placeholder-poster.jpg"
-                }
+              <MoviePoster
+                src={movie.posterUrl || movieDetails?.Poster}
                 alt={movie.title || movieDetails?.Title}
                 fill
                 className="object-cover"
-                priority
               />
               {/* Subtle gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-70"></div>
