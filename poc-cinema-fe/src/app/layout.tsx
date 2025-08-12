@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full dark">
+    <html lang="en" className="h-full">
       <head>
         <Script id="dark-mode-script" strategy="beforeInteractive">
           {`
@@ -35,7 +36,9 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased h-full bg-white dark:bg-gray-900 dark:text-white transition-colors duration-300`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
