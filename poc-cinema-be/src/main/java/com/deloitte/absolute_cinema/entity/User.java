@@ -50,6 +50,8 @@ public class User {
 
     private LocalDateTime lastLoginAt; // Stores last login timestamp
 
+    private Integer memberPoints = 0; // Loyalty points earned from bookings
+
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserFavouriteMovie> favouriteMovies = new ArrayList<>();

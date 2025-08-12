@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +103,18 @@ public class UserService {
             return new ArrayList<>();
         }
         return movieRepository.findAllById(movieIds);
+    }
+
+    /**
+     * Award loyalty points to a user based on payment amount
+     * 1 point per RM1 spent (floored)
+     */
+    public void awardLoyaltyPoints(User user, BigDecimal paymentAmount) {
+        if (user != null && paymentAmount != null) {
+            int pointsToAward = paymentAmount.intValue(); // This floors the decimal automatically
+            user.setMemberPoints(user.getMemberPoints() + pointsToAward);
+            userRepository.save(user);
+        }
     }
 
 }
