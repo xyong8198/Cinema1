@@ -2,6 +2,7 @@ import React from "react";
 import { format } from "date-fns";
 import { fetchBookingReceipt, fetchBookingTicket } from "@/lib/api";
 import { Showtime } from "@/types/movie";
+import MoviePoster from "../MoviePoster";
 
 // Update the props interface to match the actual API response structure
 export interface BookingProps {
@@ -93,9 +94,10 @@ const BookingCard = ({ booking, formatDate }: BookingCardProps) => {
       <div className="flex flex-col sm:flex-row">
         {/* Movie Poster - MADE SMALLER */}
         <div className="sm:w-1/6 h-48 sm:h-auto relative">
-          <img
-            src={movie?.posterUrl || "/placeholder-poster.jpg"}
+          <MoviePoster
+            src={movie?.posterUrl}
             alt={movie?.title || "Movie poster"}
+            useNextImage={false}
             className="w-full h-full object-cover"
           />
 

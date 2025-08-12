@@ -6,6 +6,7 @@ import { getMovieDetailsByTitle } from "@/lib/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-hot-toast";
+import MoviePoster from "./MoviePoster";
 
 interface AdminMovieFormProps {
   movie?: Movie;
@@ -272,14 +273,11 @@ const AdminMovieForm: React.FC<AdminMovieFormProps> = ({
               <div className="flex justify-center">
                 {posterUrl ? (
                   <div className="relative w-32 h-48 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden shadow-md">
-                    <img
+                    <MoviePoster
                       src={posterUrl}
                       alt="Poster preview"
+                      useNextImage={false}
                       className="absolute inset-0 w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "https://via.placeholder.com/240x360?text=No+Image";
-                      }}
                     />
                   </div>
                 ) : (

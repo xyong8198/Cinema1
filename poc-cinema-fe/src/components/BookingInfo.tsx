@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getBookingById } from "@/lib/api";
 import { format, parseISO } from "date-fns";
 import Image from "next/image";
+import MoviePoster from "./MoviePoster";
 
 interface BookingInfoProps {
   bookingId: string;
@@ -135,7 +136,7 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ bookingId }) => {
         {movie?.posterUrl && (
           <div className="md:w-1/4">
             <div className="relative rounded-xl overflow-hidden aspect-[2/3] shadow-lg">
-              <Image 
+              <MoviePoster 
                 src={movie.posterUrl} 
                 alt={movie.title || "Movie poster"}
                 fill
