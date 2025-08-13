@@ -169,10 +169,10 @@ export default function MovieCard({
           <MoviePoster
             src={movie.posterUrl}
             alt={movie.title}
+            useNextImage={false}
             className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
               isHovered ? "scale-110" : "scale-100"
             }`}
-            useNextImage={false}
           />
 
           {/* Gradient Overlay */}

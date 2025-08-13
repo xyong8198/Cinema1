@@ -140,7 +140,6 @@ export default function MovieDetailsPage({
                 alt={movie.title || movieDetails?.Title}
                 fill
                 className="object-cover"
-                priority
               />
               {/* Subtle gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-70"></div>

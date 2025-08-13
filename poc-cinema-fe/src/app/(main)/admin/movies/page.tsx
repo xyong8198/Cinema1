@@ -284,6 +284,7 @@ export default function AdminMoviesPage() {
                               alt={movie.title}
                               className="transform hover:scale-110 transition-transform duration-200 w-full h-full"
                               useNextImage={false}
+                              style={{ objectFit: "cover" }}
                             />
                           </div>
                         </td>

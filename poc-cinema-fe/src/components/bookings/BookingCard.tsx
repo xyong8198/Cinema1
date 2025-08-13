@@ -97,8 +97,8 @@ const BookingCard = ({ booking, formatDate }: BookingCardProps) => {
           <MoviePoster
             src={movie?.posterUrl}
             alt={movie?.title || "Movie poster"}
-            className="w-full h-full object-cover"
             useNextImage={false}
+            className="w-full h-full object-cover"
           />
 
           {/* Status badge overlaid on the poster */}
