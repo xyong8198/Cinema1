@@ -48,7 +48,7 @@ public class BookingService {
 
     private BigDecimal calculateTicketPrice(BigDecimal basePrice, LocalDateTime screeningTime) {
         if (isWeekendNight(screeningTime)) {
-            BigDecimal markup = basePrice.multiply(BigDecimal.valueOf(0.20));
+            BigDecimal markup = basePrice.multiply(BigDecimal.valueOf(0.50));
             return basePrice.add(markup);
         }
         return basePrice;
