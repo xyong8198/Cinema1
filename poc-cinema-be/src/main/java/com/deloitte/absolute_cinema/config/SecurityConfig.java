@@ -42,7 +42,9 @@ public class SecurityConfig {
                                 "/actuator/**",
                                 "/api/bookings",
                                 "/api/health",
-                                "/api/movies/all"
+                                "/api/movies/all",
+                                "/api/movies/filter",
+                                "/api/movies/filter-options/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
