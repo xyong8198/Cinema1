@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,45 @@ public class MovieService {
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+    
+    public List<MovieDTO> getMoviesByGenre(String genre) {
+        return movieRepository.findByGenreContainingIgnoreCase(genre)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<MovieDTO> getMoviesByLanguage(String language) {
+        return movieRepository.findByLanguageContainingIgnoreCase(language)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<MovieDTO> getMoviesByRatingRange(String ratingRange) {
+        Double[] range = parseRatingRange(ratingRange);
+        return movieRepository.findByReviewBetween(range[0], range[1])
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<String> getAvailableGenres() {
+        return movieRepository.findDistinctGenres();
+    }
+    
+    public List<String> getAvailableLanguages() {
+        return movieRepository.findDistinctLanguages();
+    }
+    
+    public List<String> getAvailableRatingRanges() {
+        return Arrays.asList("4.5-5.0", "4.0-4.5", "3.5-4.0", "3.0-3.5", "2.5-3.0", "2.0-2.5");
+    }
+    
+    private Double[] parseRatingRange(String ratingRange) {
+        String[] parts = ratingRange.split("-");
+        return new Double[]{Double.parseDouble(parts[0]), Double.parseDouble(parts[1])};
     }
 
     // Get movie by ID
