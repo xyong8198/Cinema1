@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Movie } from "@/types/movie";
@@ -174,6 +173,7 @@ export default function MovieCard({
             className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
               isHovered ? "scale-110" : "scale-100"
             }`}
+            useNextImage={false}
           />
 
           {/* Gradient Overlay */}

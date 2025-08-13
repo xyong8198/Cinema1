@@ -282,9 +282,9 @@ export default function AdminMoviesPage() {
                             <MoviePoster
                               src={movie.posterUrl}
                               alt={movie.title}
+                              className="transform hover:scale-110 transition-transform duration-200 w-full h-full"
                               useNextImage={false}
                               style={{ objectFit: "cover" }}
-                              className="transform hover:scale-110 transition-transform duration-200"
                             />
                           </div>
                         </td>

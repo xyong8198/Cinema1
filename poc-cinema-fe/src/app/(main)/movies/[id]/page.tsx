@@ -132,7 +132,11 @@ export default function MovieDetailsPage({
           <div className="sticky top-24">
             <div className="relative w-full h-[450px] lg:h-auto aspect-[2/3] rounded-3xl overflow-hidden shadow-xl dark:shadow-pink-900/20 transform transition-all duration-500 hover:shadow-2xl dark:hover:shadow-pink-900/30">
               <MoviePoster
-                src={movie.posterUrl || movieDetails?.Poster}
+                src={
+                  movie.posterUrl ||
+                  movieDetails?.Poster ||
+                  ""
+                }
                 alt={movie.title || movieDetails?.Title}
                 fill
                 className="object-cover"

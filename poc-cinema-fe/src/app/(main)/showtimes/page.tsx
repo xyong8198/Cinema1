@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Movie, Cinema, Showtime, LazyShowtime } from "@/types/movie";
 import { getAllCinemas, getAllMovies, getAllShowtimes } from "@/lib/api";
 import MoviePoster from "@/components/MoviePoster";
@@ -282,8 +281,8 @@ export default function ShowtimesPage() {
                         src={movie.posterUrl}
                         alt={movie.title}
                         fill
-                        style={{ objectFit: "cover" }}
                         className="transition-transform duration-700 group-hover:scale-110"
+                        style={{ objectFit: "cover" }}
                       />
 
                       {/* View showtimes button */}

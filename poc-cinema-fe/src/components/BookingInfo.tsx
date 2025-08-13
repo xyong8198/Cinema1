@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { getBookingById } from "@/lib/api";
 import { format, parseISO } from "date-fns";
-import Image from "next/image";
 import MoviePoster from "./MoviePoster";
 
 interface BookingInfoProps {

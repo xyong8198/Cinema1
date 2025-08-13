@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { format, parseISO } from "date-fns";
 import { getShowtimeDetails } from "@/lib/api";
 import MoviePoster from "./MoviePoster";

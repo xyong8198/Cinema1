@@ -2,7 +2,6 @@
 
 import { getShowtimesByCinema, getAllMovies, getCinemaById } from "@/lib/api";
 import Link from "next/link";
-import Image from "next/image";
 import { Movie, Showtime, Cinema } from "@/types/movie";
 import { format, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
