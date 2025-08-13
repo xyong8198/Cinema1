@@ -112,7 +112,11 @@ public class UserService {
     public void awardLoyaltyPoints(User user, BigDecimal paymentAmount) {
         if (user != null && paymentAmount != null) {
             int pointsToAward = paymentAmount.intValue(); // This floors the decimal automatically
-            user.setMemberPoints(user.getMemberPoints() + pointsToAward);
+            Integer currentPoints = user.getMemberPoints();
+            if (currentPoints == null) {
+                currentPoints = 0;
+            }
+            user.setMemberPoints(currentPoints + pointsToAward);
             userRepository.save(user);
         }
     }
