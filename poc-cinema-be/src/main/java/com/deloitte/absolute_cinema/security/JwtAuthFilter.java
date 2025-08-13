@@ -22,12 +22,17 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final LoginTokenRepository loginTokenRepository;
     private final UserRepository userRepository;
+
+    public JwtAuthFilter(JwtUtil jwtUtil, LoginTokenRepository loginTokenRepository, UserRepository userRepository) {
+        this.jwtUtil = jwtUtil;
+        this.loginTokenRepository = loginTokenRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Movie } from "@/types/movie";
@@ -6,6 +5,7 @@ import { formatPrice } from "@/utils/price";
 import { useAuth } from "@/contexts/AuthContext";
 import { checkIsFavorite, toggleFavorite } from "@/lib/api";
 import toast from "react-hot-toast";
+import MoviePoster from "./MoviePoster";
 
 // Define color scheme variants
 const colorSchemes = {
@@ -166,9 +166,10 @@ export default function MovieCard({
       >
         {/* Poster Image */}
         <div className="relative aspect-[2/3] w-full overflow-hidden">
-          <img
-            src={movie.posterUrl || "/placeholder-poster.jpg"}
+          <MoviePoster
+            src={movie.posterUrl}
             alt={movie.title}
+            useNextImage={false}
             className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
               isHovered ? "scale-110" : "scale-100"
             }`}

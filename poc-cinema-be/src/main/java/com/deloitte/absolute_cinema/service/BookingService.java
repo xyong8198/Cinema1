@@ -9,8 +9,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +35,25 @@ public class BookingService {
         this.userService = userService;
     }
 
+    private boolean isWeekendNight(LocalDateTime screeningTime) {
+        DayOfWeek dayOfWeek = screeningTime.getDayOfWeek();
+        LocalTime time = screeningTime.toLocalTime();
+        LocalTime sixPM = LocalTime.of(18, 0);
+        
+        return (dayOfWeek == DayOfWeek.FRIDAY || 
+                dayOfWeek == DayOfWeek.SATURDAY || 
+                dayOfWeek == DayOfWeek.SUNDAY) && 
+                (time.isAfter(sixPM) || time.equals(sixPM));
+    }
+
+    private BigDecimal calculateTicketPrice(BigDecimal basePrice, LocalDateTime screeningTime) {
+        if (isWeekendNight(screeningTime)) {
+            BigDecimal markup = basePrice.multiply(BigDecimal.valueOf(0.25));
+            return basePrice.add(markup);
+        }
+        return basePrice;
+    }
+
     @Transactional
     public Booking createBooking(Booking booking, List<Long> selectedSeatIds) {
         // Step 1: Ensure the seats are available before booking
@@ -50,7 +71,8 @@ public class BookingService {
                     .seat(seat)
                     .build();
             bookingSeats.add(bookingSeat);
-            totalPrice = totalPrice.add(seat.getShowtime().getMovie().getPrice());
+            BigDecimal ticketPrice = calculateTicketPrice(seat.getShowtime().getMovie().getPrice(), seat.getShowtime().getScreeningTime());
+            totalPrice = totalPrice.add(ticketPrice);
         }
 
         // Step 4: Assign BookingSeats and total price to Booking

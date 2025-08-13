@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllMovies } from "@/lib/api";
+import { getAllMovies, filterMovies, getFilterOptions } from "@/lib/api";
 import MovieCard from "@/components/MovieCard";
 import PopularMoviesSection from "@/components/PopularMoviesSection";
 import { Movie } from "@/types/movie";
@@ -16,7 +16,13 @@ export default function MoviesPage() {
     selectFocused: false,
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGenre, setSelectedGenre] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCriteria, setSelectedCriteria] = useState("");
+  const [filterOptions, setFilterOptions] = useState<string[]>([]);
+  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+  const [isFiltering, setIsFiltering] = useState(false);
+
+  const categories = ["Genre", "Rating", "Language"];
 
   // Define pastel color schemes to cycle through
   const colorSchemes = [
@@ -57,6 +63,47 @@ export default function MoviesPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    async function loadFilterOptions() {
+      if (selectedCategory) {
+        try {
+          const options = await getFilterOptions(selectedCategory.toLowerCase());
+          setFilterOptions(options);
+          setSelectedCriteria("");
+        } catch (error) {
+          console.error("Failed to fetch filter options:", error);
+          setFilterOptions([]);
+        }
+      } else {
+        setFilterOptions([]);
+        setSelectedCriteria("");
+      }
+    }
+
+    loadFilterOptions();
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    async function applyFilter() {
+      if (selectedCategory && selectedCriteria) {
+        try {
+          setIsFiltering(true);
+          const filtered = await filterMovies(selectedCategory.toLowerCase(), selectedCriteria);
+          setFilteredMovies(filtered);
+        } catch (error) {
+          console.error("Failed to filter movies:", error);
+          setFilteredMovies([]);
+        } finally {
+          setIsFiltering(false);
+        }
+      } else {
+        setFilteredMovies([]);
+      }
+    }
+
+    applyFilter();
+  }, [selectedCategory, selectedCriteria]);
+
   // Get grid columns based on window width
   const getGridCols = () => {
     if (!mounted) return "grid-cols-1";
@@ -84,21 +131,20 @@ export default function MoviesPage() {
     return windowWidth >= 768 ? "w-auto" : "w-full";
   };
 
-  // Filter movies based on search and genre
-  const filteredMovies = movies.filter((movie) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (movie.director &&
-        movie.director.toLowerCase().includes(searchTerm.toLowerCase()));
+  const displayMovies = () => {
+    let moviesToFilter = filteredMovies.length > 0 || (selectedCategory && selectedCriteria) ? filteredMovies : movies;
+    
+    if (searchTerm) {
+      return moviesToFilter.filter((movie) =>
+        movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (movie.director && movie.director.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
+    return moviesToFilter;
+  };
 
-    const matchesGenre =
-      selectedGenre === "" ||
-      movie.genre?.toLowerCase() === selectedGenre.toLowerCase() ||
-      movie.genre?.toLowerCase().includes(selectedGenre.toLowerCase());
-
-    return matchesSearch && matchesGenre;
-  });
+  const finalMovies = displayMovies();
 
   if (loading) {
     return (
@@ -206,7 +252,7 @@ export default function MoviesPage() {
                 )}
               </div>
 
-              {/* Enhanced genre selector */}
+              {/* Category selector (first dropdown) */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
@@ -227,8 +273,8 @@ export default function MoviesPage() {
                   </svg>
                 </div>
                 <select
-                  value={selectedGenre}
-                  onChange={(e) => setSelectedGenre(e.target.value)}
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
                   className={`pl-10 appearance-none rounded-xl border-2 ${
                     inputState.selectFocused
                       ? "border-purple-500 ring-2 ring-purple-200 dark:ring-purple-900/30"
@@ -241,22 +287,10 @@ export default function MoviesPage() {
                     setInputState({ ...inputState, selectFocused: false })
                   }
                 >
-                  <option value="">All Genres</option>
-                  {[
-                    "Action",
-                    "Comedy",
-                    "Drama",
-                    "Horror",
-                    "Sci-Fi",
-                    "Biography",
-                    "Animation",
-                    "Adventure",
-                    "Romance",
-                    "Thriller",
-                    "Documentary",
-                  ].map((genre) => (
-                    <option key={genre} value={genre.toLowerCase()}>
-                      {genre}
+                  <option value="">Filter Category</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
                     </option>
                   ))}
                 </select>
@@ -275,6 +309,55 @@ export default function MoviesPage() {
                   </svg>
                 </div>
               </div>
+
+              {/* Criteria selector (second dropdown) */}
+              {selectedCategory && (
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400 dark:text-gray-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <select
+                    value={selectedCriteria}
+                    onChange={(e) => setSelectedCriteria(e.target.value)}
+                    className={`pl-10 appearance-none rounded-xl border-2 border-gray-200 dark:border-gray-700 py-3 px-4 pr-10 outline-none transition-all duration-200 ${getSelectWidth()} bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}
+                    disabled={!selectedCategory || filterOptions.length === 0}
+                  >
+                    <option value="">
+                      {filterOptions.length === 0 ? "Loading..." : `Select ${selectedCategory}`}
+                    </option>
+                    {filterOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {selectedCategory === "Rating" ? `${option} stars` : option}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                    <svg
+                      className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Filter chips/tags section */}
@@ -301,13 +384,15 @@ export default function MoviesPage() {
                   </button>
                 </div>
               )}
-              {selectedGenre && (
+              {selectedCategory && selectedCriteria && (
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200">
-                  <span className="mr-1">Genre:</span>{" "}
-                  {selectedGenre.charAt(0).toUpperCase() +
-                    selectedGenre.slice(1)}
+                  <span className="mr-1">{selectedCategory}:</span>
+                  {selectedCategory === "Rating" ? `${selectedCriteria} stars` : selectedCriteria}
                   <button
-                    onClick={() => setSelectedGenre("")}
+                    onClick={() => {
+                      setSelectedCategory("");
+                      setSelectedCriteria("");
+                    }}
                     className="ml-1 flex-shrink-0 text-purple-500 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 focus:outline-none"
                   >
                     <svg
@@ -325,11 +410,12 @@ export default function MoviesPage() {
                   </button>
                 </div>
               )}
-              {(searchTerm || selectedGenre) && (
+              {(searchTerm || (selectedCategory && selectedCriteria)) && (
                 <button
                   onClick={() => {
                     setSearchTerm("");
-                    setSelectedGenre("");
+                    setSelectedCategory("");
+                    setSelectedCriteria("");
                   }}
                   className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
@@ -339,14 +425,14 @@ export default function MoviesPage() {
             </div>
 
             {/* Results count */}
-            {filteredMovies.length > 0 && (searchTerm || selectedGenre) && (
+            {finalMovies.length > 0 && (searchTerm || (selectedCategory && selectedCriteria)) && (
               <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                 Found{" "}
                 <span className="font-medium text-gray-900 dark:text-gray-200">
-                  {filteredMovies.length}
+                  {finalMovies.length}
                 </span>{" "}
-                {filteredMovies.length === 1 ? "movie" : "movies"} matching your
-                criteria
+                {finalMovies.length === 1 ? "movie" : "movies"} matching your criteria
+                {isFiltering && <span className="ml-2">Loading...</span>}
               </div>
             )}
           </div>
@@ -357,9 +443,9 @@ export default function MoviesPage() {
       <PopularMoviesSection />
 
       {/* Movies grid */}
-      {filteredMovies.length > 0 ? (
+      {finalMovies.length > 0 ? (
         <div className={`grid ${getGridCols()} gap-6`}>
-          {filteredMovies.map((movie, index) => (
+          {finalMovies.map((movie, index) => (
             <div key={movie.id} className="h-full">
               <MovieCard
                 movie={movie}
@@ -388,7 +474,7 @@ export default function MoviesPage() {
             No movies found
           </h3>
           <p className="text-gray-500 dark:text-gray-400 mb-4">
-            {searchTerm || selectedGenre
+            {searchTerm || (selectedCategory && selectedCriteria)
               ? "No movies match your current filters. Try adjusting your search criteria."
               : "There are no movies available at this time."}
           </p>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { format, parseISO } from "date-fns";
 import { getShowtimeDetails } from "@/lib/api";
+import MoviePoster from "./MoviePoster";
 
 // Type definition for the showtime data structure
 interface ShowtimeDetails {
@@ -98,7 +98,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ showtimeId }) => {
         {/* Movie Poster */}
         <div className="md:w-1/4">
           <div className="relative rounded-xl overflow-hidden aspect-[2/3] shadow-lg">
-            <Image 
+            <MoviePoster 
               src={showtime.posterUrl} 
               alt={showtime.movieTitle}
               fill
@@ -129,8 +129,34 @@ const BookingCard: React.FC<BookingCardProps> = ({ showtimeId }) => {
             <div className="bg-gray-700 p-4 rounded-xl">
               <p className="text-sm text-gray-300">Ticket Price Per Seat</p>
               <p className="font-medium text-2xl text-green-400">
-                RM{showtime.moviePrice.toFixed(2)} 
+                RM{(() => {
+                  const date = new Date(showtime.screeningTime);
+                  const dayOfWeek = date.getDay();
+                  const hour = date.getHours();
+                  const isWeekendNight = (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) && hour >= 18;
+                  
+                  if (isWeekendNight) {
+                    return (showtime.moviePrice * 1.25).toFixed(2);
+                  } else {
+                    return showtime.moviePrice.toFixed(2);
+                  }
+                })()}
               </p>
+              {(() => {
+                const date = new Date(showtime.screeningTime);
+                const dayOfWeek = date.getDay();
+                const hour = date.getHours();
+                const isWeekendNight = (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) && hour >= 18;
+                
+                if (isWeekendNight) {
+                  return (
+                    <p className="text-xs text-purple-300 mt-1">
+                      Weekend Night: RM{showtime.moviePrice.toFixed(2)} × 125%
+                    </p>
+                  );
+                }
+                return null;
+              })()}
             </div>
           </div>
 

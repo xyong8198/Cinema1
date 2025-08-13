@@ -30,6 +30,46 @@ public class MovieController {
     public ResponseEntity<List<MovieDTO>> getAllMovies() {
         return ResponseEntity.ok(movieService.getAllMovies());
     }
+    
+    @GetMapping("/filter")
+    public ResponseEntity<List<MovieDTO>> filterMovies(
+            @RequestParam String category,
+            @RequestParam String criteria) {
+        List<MovieDTO> movies;
+        switch (category.toLowerCase()) {
+            case "genre":
+                movies = movieService.getMoviesByGenre(criteria);
+                break;
+            case "language":
+                movies = movieService.getMoviesByLanguage(criteria);
+                break;
+            case "rating":
+                movies = movieService.getMoviesByRatingRange(criteria);
+                break;
+            default:
+                return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(movies);
+    }
+    
+    @GetMapping("/filter-options/{category}")
+    public ResponseEntity<List<String>> getFilterOptions(@PathVariable String category) {
+        List<String> options;
+        switch (category.toLowerCase()) {
+            case "genre":
+                options = movieService.getAvailableGenres();
+                break;
+            case "language":
+                options = movieService.getAvailableLanguages();
+                break;
+            case "rating":
+                options = movieService.getAvailableRatingRanges();
+                break;
+            default:
+                return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(options);
+    }
 
     // Get movie by ID
     @GetMapping("/{id}")

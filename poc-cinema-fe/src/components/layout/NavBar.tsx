@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Role } from "@/types/user";
 import Image from "next/image";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -128,6 +129,7 @@ const Navbar = () => {
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+            <ThemeToggle />
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -228,6 +230,7 @@ const Navbar = () => {
           </div>
 
           <div className="-mr-2 flex items-center sm:hidden space-x-2">
+            <ThemeToggle />
             {/* Mobile menu button */}
             <button
               onClick={toggleMenu}

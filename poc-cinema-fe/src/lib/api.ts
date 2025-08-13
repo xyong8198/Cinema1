@@ -81,35 +81,7 @@ export async function getAllMovies(): Promise<Movie[]> {
   }
 }
 
-export async function getPopularMoviesThisWeek(): Promise<PopularMovie[]> {
-  try {
-    console.log(`Fetching from: ${BASE_URL}/movies/popular-this-week`);
 
-    const response = await fetch(`${BASE_URL}/movies/popular-this-week`, {
-      headers: {
-        Accept: "*/*",
-      },
-      mode: "cors",
-    });
-
-    console.log("Response status:", response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error response:", errorText);
-      throw new Error(
-        `Failed to fetch popular movies: ${response.status} ${errorText}`
-      );
-    }
-
-    const data = await response.json();
-    console.log("Received popular movies data:", data);
-    return data;
-  } catch (error) {
-    console.error("Error in getPopularMoviesThisWeek():", error);
-    throw error;
-  }
-}
 
 export async function getMovieById(id: number): Promise<Movie> {
   const response = await fetch(`${BASE_URL}/movies/${id}`, {

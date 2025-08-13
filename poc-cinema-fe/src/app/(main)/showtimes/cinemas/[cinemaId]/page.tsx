@@ -2,11 +2,11 @@
 
 import { getShowtimesByCinema, getAllMovies, getCinemaById } from "@/lib/api";
 import Link from "next/link";
-import Image from "next/image";
 import { Movie, Showtime, Cinema } from "@/types/movie";
 import { format, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import MoviePoster from "@/components/MoviePoster";
 
 export default function ShowtimesByCinemaPage() {
   // Use React hooks for client-side data fetching
@@ -255,8 +255,8 @@ export default function ShowtimesByCinemaPage() {
                 <div className="flex flex-col sm:flex-row gap-6 items-start mb-8">
                   {/* Movie Poster */}
                   <div className="relative w-40 h-60 rounded-2xl overflow-hidden shadow-lg dark:shadow-black/30 shrink-0">
-                    <Image
-                      src={movie?.posterUrl || "/placeholder-poster.jpg"}
+                    <MoviePoster
+                      src={movie?.posterUrl}
                       alt={movieTitle}
                       fill
                       style={{ objectFit: "cover" }}

@@ -19,11 +19,14 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
 
-    public PaymentService(PaymentRepository paymentRepository, BookingRepository bookingRepository, NotificationService notificationService) {
+    public PaymentService(PaymentRepository paymentRepository, BookingRepository bookingRepository, 
+                         NotificationService notificationService, UserService userService) {
         this.paymentRepository = paymentRepository;
         this.bookingRepository = bookingRepository;
         this.notificationService = notificationService;
+        this.userService = userService;
     }
 
     @Transactional
@@ -87,6 +90,10 @@ public class PaymentService {
         // Update booking status
         Booking booking = payment.getBooking();
         booking.setStatus(BookingStatus.CONFIRMED);
+
+        if (booking.getUser() != null) {
+            userService.awardLoyaltyPoints(booking.getUser(), payment.getAmount());
+        }
 
         // Update seat status
         booking.getBookingSeats().forEach(seat -> seat.getSeat().setStatus(SeatStatus.BOOKED));
