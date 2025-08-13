@@ -192,7 +192,22 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ bookingId }) => {
                 RM{booking.totalPrice?.toFixed(2) || "0.00"}
               </p>
               <p className="text-xs text-gray-400">
-                RM{movie?.price?.toFixed(2) || "0.00"} × {seatNumbers.length} seat(s)
+                {(() => {
+                  if (!movie?.price || !showtime?.screeningTime) {
+                    return `RM${movie?.price?.toFixed(2) || "0.00"} × ${seatNumbers.length} seat(s)`;
+                  }
+                  
+                  const date = new Date(showtime.screeningTime);
+                  const dayOfWeek = date.getDay();
+                  const hour = date.getHours();
+                  const isWeekendNight = (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) && hour >= 18;
+                  
+                  if (isWeekendNight) {
+                    return `${seatNumbers.length} × RM${movie.price.toFixed(2)} × 125% (Weekend Night)`;
+                  } else {
+                    return `${seatNumbers.length} × RM${movie.price.toFixed(2)}`;
+                  }
+                })()}
               </p>
             </div>
             
