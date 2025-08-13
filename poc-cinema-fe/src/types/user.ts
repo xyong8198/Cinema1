@@ -12,6 +12,7 @@ export interface User {
   role: Role; // Enum value
   isActive: boolean;
   lastLoginAt?: string;
+  memberPoints?: number; // Loyalty points earned from bookings
 }
 
 // Enum for user roles matching the backend
