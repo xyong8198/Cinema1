@@ -6,6 +6,7 @@ import { Movie } from "@/types/movie";
 import AdminMovieForm from "@/components/AdminMovieForm";
 import { formatPrice } from "@/utils/price";
 import Protected from "@/middleware/Protected";
+import MoviePoster from "@/components/MoviePoster";
 
 export default function AdminMoviesPage() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -278,11 +279,11 @@ export default function AdminMoviesPage() {
                         {/* Existing poster cell */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="relative w-12 h-16 rounded-lg overflow-hidden shadow-sm dark:shadow-black/50">
-                            <img
-                              src={movie.posterUrl || "/placeholder-poster.jpg"}
+                            <MoviePoster
+                              src={movie.posterUrl}
                               alt={movie.title}
-                              style={{ objectFit: "cover" }}
-                              className="transform hover:scale-110 transition-transform duration-200"
+                              className="transform hover:scale-110 transition-transform duration-200 w-full h-full"
+                              useNextImage={false}
                             />
                           </div>
                         </td>
