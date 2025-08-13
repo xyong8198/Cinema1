@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { format, parseISO } from "date-fns";
 import { getShowtimeDetails } from "@/lib/api";
+import MoviePoster from "./MoviePoster";
 
 // Type definition for the showtime data structure
 interface ShowtimeDetails {
@@ -98,7 +98,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ showtimeId }) => {
         {/* Movie Poster */}
         <div className="md:w-1/4">
           <div className="relative rounded-xl overflow-hidden aspect-[2/3] shadow-lg">
-            <Image 
+            <MoviePoster 
               src={showtime.posterUrl} 
               alt={showtime.movieTitle}
               fill
