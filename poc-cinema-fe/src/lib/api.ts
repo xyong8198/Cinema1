@@ -3,6 +3,7 @@ import {
   DetailedMovie,
   LazyShowtime,
   Movie,
+  PopularMovie,
   Showtime,
 } from "@/types/movie";
 import { User } from "@/types/user";
@@ -80,50 +81,7 @@ export async function getAllMovies(): Promise<Movie[]> {
   }
 }
 
-export async function filterMovies(category: string, criteria: string): Promise<Movie[]> {
-  try {
-    const params = new URLSearchParams({
-      category: category,
-      criteria: criteria
-    });
-    
-    const response = await fetch(`${BASE_URL}/movies/filter?${params.toString()}`, {
-      headers: {
-        Accept: "*/*",
-      },
-      mode: "cors",
-    });
 
-    if (!response.ok) {
-      throw new Error(`Failed to filter movies: ${response.status}`);
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error("Error in filterMovies():", error);
-    throw error;
-  }
-}
-
-export async function getFilterOptions(category: string): Promise<string[]> {
-  try {
-    const response = await fetch(`${BASE_URL}/movies/filter-options/${category}`, {
-      headers: {
-        Accept: "*/*",
-      },
-      mode: "cors",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to get filter options: ${response.status}`);
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error("Error in getFilterOptions():", error);
-    throw error;
-  }
-}
 
 export async function getMovieById(id: number): Promise<Movie> {
   const response = await fetch(`${BASE_URL}/movies/${id}`, {

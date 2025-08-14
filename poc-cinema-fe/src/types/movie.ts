@@ -71,3 +71,14 @@ export interface Cinema {
   location: string;
   totalScreens: number;
 }
+
+export interface PopularMovie {
+  movieId: number;
+  title: string;
+  director: string;
+  genre: string;
+  posterUrl: string;
+  rating: string;
+  price: number;
+  bookingCount: number;
+}
