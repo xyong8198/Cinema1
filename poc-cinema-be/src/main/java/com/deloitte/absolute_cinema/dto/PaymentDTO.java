@@ -12,6 +12,8 @@ public record PaymentDTO(
         PaymentMethod paymentMethod,
         BigDecimal amount,
         PaymentStatus status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String stripePaymentIntentId,
+        String clientSecret
 ) {}
 

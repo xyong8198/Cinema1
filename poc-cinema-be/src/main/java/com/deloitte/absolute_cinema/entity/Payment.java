@@ -26,4 +26,6 @@ public class Payment {
     private PaymentStatus status = PaymentStatus.SUCCESSFUL;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+    private String stripePaymentIntentId;
 }
