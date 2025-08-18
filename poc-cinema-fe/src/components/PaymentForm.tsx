@@ -18,6 +18,8 @@ interface PaymentDTO {
   createdAt: string;
   expiryTime: string;
   paymentMethod?: string;
+  stripePaymentIntentId?: string;
+  clientSecret?: string;
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = ({ bookingId, onSuccess }) => {

@@ -5,6 +5,8 @@ import com.deloitte.absolute_cinema.entity.*;
 import com.deloitte.absolute_cinema.exception.ResourceNotFoundException;
 import com.deloitte.absolute_cinema.repository.BookingRepository;
 import com.deloitte.absolute_cinema.repository.PaymentRepository;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +22,16 @@ public class PaymentService {
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final StripeService stripeService;
 
     public PaymentService(PaymentRepository paymentRepository, BookingRepository bookingRepository, 
-                         NotificationService notificationService, UserService userService) {
+                         NotificationService notificationService, UserService userService,
+                         StripeService stripeService) {
         this.paymentRepository = paymentRepository;
         this.bookingRepository = bookingRepository;
         this.notificationService = notificationService;
         this.userService = userService;
+        this.stripeService = stripeService;
     }
 
     @Transactional
@@ -47,15 +52,24 @@ public class PaymentService {
         // Auto-assign the correct amount from the booking
         BigDecimal amount = booking.getTotalPrice();
 
-        // Create Payment (Initially PENDING)
-        Payment payment = new Payment();
-        payment.setBooking(booking);
-        payment.setAmount(amount);
-        payment.setPaymentMethod(null); // Not provided yet
-        payment.setStatus(PaymentStatus.PENDING);
-        payment.setCreatedAt(LocalDateTime.now());
+        try {
+            // Create Stripe Payment Intent
+            PaymentIntent paymentIntent = stripeService.createPaymentIntent(amount, "myr");
+            
+            // Create Payment (Initially PENDING)
+            Payment payment = new Payment();
+            payment.setBooking(booking);
+            payment.setAmount(amount);
+            payment.setPaymentMethod(null);
+            payment.setStatus(PaymentStatus.PENDING);
+            payment.setCreatedAt(LocalDateTime.now());
+            payment.setStripePaymentIntentId(paymentIntent.getId());
 
-        return mapToDTO(paymentRepository.save(payment));
+            Payment savedPayment = paymentRepository.save(payment);
+            return mapToDTO(savedPayment, paymentIntent.getClientSecret());
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to create payment intent: " + e.getMessage(), e);
+        }
     }
 
     @Transactional
@@ -83,41 +97,53 @@ public class PaymentService {
             throw new IllegalArgumentException("Incorrect payment amount. Please pay exactly: " + payment.getAmount());
         }
 
-        // Mark as successful
-        payment.setPaymentMethod(paymentMethod);
-        payment.setStatus(PaymentStatus.SUCCESSFUL);
+        try {
+            PaymentIntent paymentIntent = stripeService.retrievePaymentIntent(payment.getStripePaymentIntentId());
+            
+            if (!"succeeded".equals(paymentIntent.getStatus())) {
+                throw new IllegalStateException("Payment not completed in Stripe. Status: " + paymentIntent.getStatus());
+            }
 
-        // Update booking status
-        Booking booking = payment.getBooking();
-        booking.setStatus(BookingStatus.CONFIRMED);
+            // Mark as successful
+            payment.setPaymentMethod(paymentMethod);
+            payment.setStatus(PaymentStatus.SUCCESSFUL);
 
-        if (booking.getUser() != null) {
-            userService.awardLoyaltyPoints(booking.getUser(), payment.getAmount());
+            // Update booking status
+            Booking booking = payment.getBooking();
+            booking.setStatus(BookingStatus.CONFIRMED);
+
+            if (booking.getUser() != null) {
+                userService.awardLoyaltyPoints(booking.getUser(), payment.getAmount());
+            }
+
+            // Update seat status
+            booking.getBookingSeats().forEach(seat -> seat.getSeat().setStatus(SeatStatus.BOOKED));
+
+            // Handle both registered users and guest users
+            String recipientEmail = null;
+
+            if (payment.getBooking().getUser() != null) {
+                recipientEmail = payment.getBooking().getUser().getEmail();
+            } else if (payment.getBooking().getGuest() != null) {
+                recipientEmail = payment.getBooking().getGuest().getEmail();
+            }
+
+            if (recipientEmail != null) {
+                notificationService.sendPaymentConfirmation(recipientEmail, paymentId);
+            }
+            // Send confirmation notification
+            notificationService.sendBookingConfirmation(booking);
+
+            // Save all updates
+            paymentRepository.save(payment);
+            bookingRepository.save(booking);
+
+            return mapToDTO(payment, null);
+        } catch (StripeException e) {
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+            throw new RuntimeException("Stripe payment verification failed: " + e.getMessage(), e);
         }
-
-        // Update seat status
-        booking.getBookingSeats().forEach(seat -> seat.getSeat().setStatus(SeatStatus.BOOKED));
-
-        // Handle both registered users and guest users
-        String recipientEmail = null;
-
-        if (payment.getBooking().getUser() != null) {
-            recipientEmail = payment.getBooking().getUser().getEmail();
-        } else if (payment.getBooking().getGuest() != null) {
-            recipientEmail = payment.getBooking().getGuest().getEmail();
-        }
-
-        if (recipientEmail != null) {
-            notificationService.sendPaymentConfirmation(recipientEmail, paymentId);
-        }
-        // Send confirmation notification
-        notificationService.sendBookingConfirmation(booking);
-
-        // Save all updates
-        paymentRepository.save(payment);
-        bookingRepository.save(booking);
-
-        return mapToDTO(payment);
     }
 
     /**
@@ -183,13 +209,19 @@ public class PaymentService {
 //    }
 
     private PaymentDTO mapToDTO(Payment payment) {
+        return mapToDTO(payment, null);
+    }
+    
+    private PaymentDTO mapToDTO(Payment payment, String clientSecret) {
         return new PaymentDTO(
                 payment.getId(),
                 payment.getBooking().getId(),
                 payment.getPaymentMethod(),
                 payment.getAmount(),
                 payment.getStatus(),
-                payment.getCreatedAt()
+                payment.getCreatedAt(),
+                payment.getStripePaymentIntentId(),
+                clientSecret
         );
     }
 }
