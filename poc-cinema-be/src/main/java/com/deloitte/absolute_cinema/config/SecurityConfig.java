@@ -44,10 +44,14 @@ public class SecurityConfig {
                                 "/api/health",
                                 "/api/movies/all",
                                 "/api/movies/filter",
-                                "/api/movies/filter-options/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
+                                "/api/movies/filter-options/**",
+                                "/api/halls/available",
+                                "/api/halls/reserve",
+                                "/api/halls/reservations",
+                                "/hall-reservation",
+                                "/hall-reservation/**")
+                        .permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -59,8 +63,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("*")); // Allow all origins
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow all common HTTP methods
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type")); // Allow common headers
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow all common
+                                                                                                   // HTTP methods
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type")); // Allow
+                                                                                                          // common
+                                                                                                          // headers
         configuration.setExposedHeaders(Arrays.asList("Authorization")); // Expose Authorization header to client
         configuration.setAllowCredentials(false); // Not allowing credentials with wildcard origins
         configuration.setMaxAge(3600L); // Cache preflight response for 1 hour
@@ -71,7 +78,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

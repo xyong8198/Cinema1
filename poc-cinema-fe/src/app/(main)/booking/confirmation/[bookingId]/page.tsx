@@ -16,27 +16,34 @@ export default function BookingConfirmationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Fetch booking info
+  // Polling logic to fetch booking info and wait for status update
   useEffect(() => {
-    const fetchBookingDetails = async () => {
+    let isMounted = true;
+    let attempts = 0;
+    const maxAttempts = 5;
+    const pollBooking = async () => {
       try {
         setLoading(true);
         const data = await getBookingById(bookingId);
+        if (!isMounted) return;
         setBooking(data);
-        
-        // Redirect to booking page if payment is still pending
-        if (data.status === "PENDING") {
+        if (data.status === "PENDING" && attempts < maxAttempts) {
+          attempts++;
+          setTimeout(pollBooking, 1000);
+        } else if (data.status === "PENDING") {
+          // After max attempts, redirect to booking page
           router.push(`/booking/${bookingId}`);
         }
       } catch (error: any) {
+        if (!isMounted) return;
         console.error("Failed to fetch booking details:", error);
         setError(error.message || "Failed to load booking information");
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchBookingDetails();
+    pollBooking();
+    return () => { isMounted = false; };
   }, [bookingId, router]);
 
   if (loading) {
